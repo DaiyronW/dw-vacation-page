@@ -1,4 +1,4 @@
-  /* General styles */
+/* General styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -57,7 +57,7 @@ form #reset_btn {
 
 form #reset_btn:hover {
     background: #c82333; /* Darker red on hover */
-
+}
 /* Reset button */
 form #reset_btn {
     background: #e8491d;
@@ -79,3 +79,4 @@ form #reset_btn:hover {
 .title {
     margin-top: 20px;
 }
+

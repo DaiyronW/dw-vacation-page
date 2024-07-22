@@ -1,6 +1,8 @@
 document.querySelector("#destination_form").addEventListener("submit", handleFormSubmit);
 document.querySelector("#reset_btn").addEventListener("click", resetCards);
 
+document.addEventListener("DOMContentLoaded", loadCardsFromLocalStorage);
+
 function handleFormSubmit(event) {
     event.preventDefault();
 
@@ -15,6 +17,8 @@ function handleFormSubmit(event) {
 
     const cardsContainer = document.querySelector("#cards_container");
     cardsContainer.appendChild(destinationCard);
+
+    saveCardToLocalStorage(destinationName, destinationLocation, destinationPhoto, destinationDesc);
 }
 
 function resetFormValues(form) {
@@ -97,16 +101,52 @@ function editDestination(event) {
     if (newPhotoUrl.length > 0) {
         photoUrl.setAttribute("src", newPhotoUrl);
     }
+
+    updateLocalStorage();
 }
 
 function removeDestination(event) {
     const cardBody = event.target.parentElement.parentElement;
     const card = cardBody.parentElement;
     card.remove();
+    updateLocalStorage();
 }
 
 function resetCards() {
     const cardsContainer = document.querySelector("#cards_container");
     cardsContainer.innerHTML = "";
     document.querySelector("#destination_form").reset();
+    localStorage.removeItem("destinations");
+}
+
+function saveCardToLocalStorage(name, location, photoUrl, description) {
+    const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
+    destinations.push({ name, location, photoUrl, description });
+    localStorage.setItem("destinations", JSON.stringify(destinations));
+}
+
+function loadCardsFromLocalStorage() {
+    const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
+    destinations.forEach(({ name, location, photoUrl, description }) => {
+        const destinationCard = createDestinationCard(name, location, photoUrl, description);
+        const cardsContainer = document.querySelector("#cards_container");
+        cardsContainer.appendChild(destinationCard);
+    });
+}
+
+function updateLocalStorage() {
+    const cardsContainer = document.querySelector("#cards_container");
+    const cards = cardsContainer.querySelectorAll(".card");
+    const destinations = [];
+
+    cards.forEach(card => {
+        const name = card.querySelector(".card-title").innerText;
+        const location = card.querySelector(".card-subtitle").innerText;
+        const photoUrl = card.querySelector(".card-img-top").src;
+        const description = card.querySelector(".card-text") ? card.querySelector(".card-text").innerText : "";
+
+        destinations.push({ name, location, photoUrl, description });
+    });
+
+    localStorage.setItem("destinations", JSON.stringify(destinations));
 }
