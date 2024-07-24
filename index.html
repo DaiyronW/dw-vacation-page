@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Destinations Page</title>
 
-    <!-- Link to BootStrap CSS -->
+    <!-- Link to Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -13,63 +13,60 @@
       crossorigin="anonymous"
     />
 
-    <!-- Link to My CSS -->
+    <!-- Link to Custom CSS -->
     <link rel="stylesheet" href="./styles.css" />
 
-    <!-- Link to My JS -->
-    <script async defer src="./script.js"></script>
-  </head>
-  <body>
-    <div class="jumbotron jumbotron-fluid">
-      <div class="container text-center">
-        <h1 class="col-sm-12">Vacation Destinations WishList</h1>
-        <p class="top">
-          Found exciting places to visit on your next vacation? Use the form below
-          to add them to your wishlist
-        </p>
-      </div>
-    </div>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-3">
-          <form id="destination_form">
-            <div class="form_items">
-              <label for="destination_name" class="form-label">Destination name</label>
-              <input type="text" class="form-control"
-                id="destination_name" placeholder="Name"
-                required
-              />
-            </div>
-            <div class="form_items">
-              <label for="location_name" class="form-label">Location name</label>
-              <input type="text"
-                class="form-control"
-                id="location_name"
-                placeholder="Location"
-                required/>
-            </div>
-            <div class="form_items">
-              <label for="photo_url" class="form-label">Photo</label>
-              <input type="url" class="form-control" id="photo_url" placeholder="photo url"/>
-            </div>
-            <div class="form_items">
-                <label for="description">Description</label>
-                <textarea
-                  class="form-control"
-                  id="location_description"
-                  placeholder="enter description"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary submit_btn">Add to list</button>
-            <button type="button" id="reset_btn" class="btn btn-secondary mt-2">Reset List</button>
-          </form>
+    <!-- Link to JavaScript Module -->
+    <script defer type="module" src="./modules/main.js"></script>
+    <script defer type="module" src="./modules/photoSearch.js"></script>
+    <script defer type="module" src="./modules/storage.js"></script>
+</head>
+<body>
+    <div class="jumbotron jumbotron-fluid bg-primary text-white text-center py-4">
+        <div class="container">
+            <h1 class="display-4">Vacation Destinations WishList</h1>
+            <p class="lead">
+                Found exciting places to visit on your next vacation? Use the form below
+                to add them to your wishlist.
+            </p>
         </div>
-        <div class="col-sm-9">
-          <h2 class="title">
-            Enter destination details
-          </h2>
-          <div class="row" id="cards_container"></div>
-        </div>
-      </div>
     </div>
-  </body>
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Form for adding a new destination -->
+            <div class="col-sm-12 col-md-4">
+                <form id="destination_form">
+                    <div class="mb-3">
+                        <label for="destination_name" class="form-label">Destination Name</label>
+                        <input type="text" class="form-control"
+                            id="destination_name" placeholder="Name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="location_name" class="form-label">Location Name</label>
+                        <input type="text" class="form-control"
+                            id="location_name" placeholder="Location" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="photo_search" class="form-label">Search for a Photo</label>
+                        <input type="text" class="form-control" id="photo_search" placeholder="Search photos" />
+                        <button type="button" id="search_photo_btn" class="btn btn-primary mt-2">Search</button>
+                    </div>
+                    <div id="photo_results" class="photo-results mt-2"></div> 
+                    <input type="hidden" id="photo_url" /> 
+                    <div class="mb-3">
+                        <label for="location_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="location_description" placeholder="Enter description"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add to List</button>
+                    <button type="button" id="reset_btn" class="btn btn-secondary mt-2">Reset List</button>
+                </form>
+            </div>
+            <!-- Container for displaying destination cards -->
+            <div class="col-sm-12 col-md-8">
+                <h2 class="title">Destination Details</h2>
+                <div class="row" id="cards_container"></div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
