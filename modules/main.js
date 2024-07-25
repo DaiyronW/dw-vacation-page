@@ -1,24 +1,48 @@
-import { updateLocalStorage, loadCardsFromLocalStorage } from './storage.js';
-import { searchPhotos } from './photoSearch.js';
-import { handleFormSubmit } from './formHandler.js';
+import { saveCardToLocalStorage, loadCardsFromLocalStorage, updateLocalStorage } from './storage.js';
+import { searchCreatePhotos, searchEditPhotos } from './photoSearch.js';
 
-// Add event listeners to form submission and buttons
 document.querySelector("#destination_form").addEventListener("submit", handleFormSubmit);
 document.querySelector("#reset_btn").addEventListener("click", resetCards);
-document.querySelector("#search_photo_btn").addEventListener("click", searchPhotos);
+document.querySelector("#search_photo_btn").addEventListener("click", searchCreatePhotos);
+document.querySelector("#edit_search_photo_btn").addEventListener("click", searchEditPhotos);
 
-// Load cards from local storage when the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", loadCardsFromLocalStorage);
 
-// Create a new destination card element
+function handleFormSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const destinationName = form.elements["destination_name"].value;
+    const destinationLocation = form.elements["location_name"].value;
+    const destinationPhoto = form.elements["photo_url"].value;
+    const destinationDesc = form.elements["location_description"].value;
+
+    if (form.dataset.editing) {
+        const cardToUpdate = document.querySelector(`.card[data-id="${form.dataset.cardId}"]`);
+        updateDestinationCard(cardToUpdate, destinationName, destinationLocation, destinationPhoto, destinationDesc);
+    } else {
+        const destinationCard = createDestinationCard(destinationName, destinationLocation, destinationPhoto, destinationDesc);
+        document.querySelector("#cards_container").appendChild(destinationCard);
+        saveCardToLocalStorage(destinationName, destinationLocation, destinationPhoto, destinationDesc);
+    }
+
+    resetFormValues(form);
+}
+
+function resetFormValues(form) {
+    form.reset();
+    document.querySelector("#photo_results").innerHTML = '';
+    delete form.dataset.editing;
+    delete form.dataset.cardId;
+}
+
 export function createDestinationCard(name, location, photoUrl, description) {
     const card = document.createElement("div");
     card.setAttribute("class", "card col-md-4");
+    card.setAttribute("data-id", Date.now());
     card.style.margin = "10px 0";
-    card.id = `card-${Date.now()}`; // Assign a unique ID to the card
 
     const img = document.createElement("img");
-    img.setAttribute("class", "card-img-top card-image"); // Add a class for styling
+    img.setAttribute("class", "card-img-top");
     img.setAttribute("alt", name);
     img.setAttribute("src", photoUrl);
     card.appendChild(img);
@@ -47,14 +71,14 @@ export function createDestinationCard(name, location, photoUrl, description) {
     buttonsContainer.setAttribute("class", "buttons_container");
 
     const cardEditBtn = document.createElement("button");
-    cardEditBtn.setAttribute("class", "btn btn-warning");
+    cardEditBtn.setAttribute("class", "btn btn-warning edit-btn");
     cardEditBtn.innerText = "Edit";
-    cardEditBtn.addEventListener("click", editDestination);
+    cardEditBtn.addEventListener("click", () => openEditModal(card));
 
     const cardDeleteBtn = document.createElement("button");
-    cardDeleteBtn.setAttribute("class", "btn btn-danger");
+    cardDeleteBtn.setAttribute("class", "btn btn-danger delete-btn");
     cardDeleteBtn.innerText = "Remove";
-    cardDeleteBtn.addEventListener("click", removeDestination);
+    cardDeleteBtn.addEventListener("click", () => removeDestination(card));
 
     buttonsContainer.appendChild(cardEditBtn);
     buttonsContainer.appendChild(cardDeleteBtn);
@@ -65,63 +89,62 @@ export function createDestinationCard(name, location, photoUrl, description) {
     return card;
 }
 
-// Edit a destination card
-function editDestination(event) {
-    const card = event.target.closest(".card"); // Get the card element
-    const cardBody = card.querySelector(".card-body"); // Get the card body
-    const title = cardBody.querySelector(".card-title"); // Get the title element
-    const subTitle = cardBody.querySelector(".card-subtitle"); // Get the subtitle element
-    const photoUrl = card.querySelector(".card-img-top"); // Get the image element
-
-    // Populate form with current values
-    document.querySelector("#destination_name").value = title.innerText;
-    document.querySelector("#location_name").value = subTitle.innerText;
-    document.querySelector("#photo_url").value = photoUrl.src;
-    document.querySelector("#location_description").value = cardBody.querySelector(".card-text") ? cardBody.querySelector(".card-text").innerText : "";
-
-    // Change form submission to update card
-    document.querySelector("#destination_form").addEventListener("submit", function updateCard(event) {
-        event.preventDefault();
-
-        // Extract form values
-        const newName = event.target.elements["destination_name"].value;
-        const newLocation = event.target.elements["location_name"].value;
-        const newPhotoUrl = event.target.elements["photo_url"].value;
-        const newDesc = event.target.elements["location_description"].value;
-
-        // Update card content
-        title.innerText = newName;
-        subTitle.innerText = newLocation;
-        photoUrl.setAttribute("src", newPhotoUrl);
-        if (cardBody.querySelector(".card-text")) {
-            cardBody.querySelector(".card-text").innerText = newDesc;
-        } else {
+function updateDestinationCard(card, name, location, photoUrl, description) {
+    card.querySelector(".card-title").innerText = name;
+    card.querySelector(".card-subtitle").innerText = location;
+    card.querySelector(".card-img-top").src = photoUrl;
+    if (description.length !== 0) {
+        if (!card.querySelector(".card-text")) {
             const cardText = document.createElement("p");
             cardText.setAttribute("class", "card-text");
-            cardText.innerText = newDesc;
-            cardBody.appendChild(cardText);
+            cardText.innerText = description;
+            card.querySelector(".card-body").appendChild(cardText);
+        } else {
+            card.querySelector(".card-text").innerText = description;
         }
-
-        // Remove form listener to prevent multiple bindings
-        document.querySelector("#destination_form").removeEventListener("submit", updateCard);
-
-        // Update local storage
-        updateLocalStorage();
-    });
+    } else if (card.querySelector(".card-text")) {
+        card.querySelector(".card-text").remove();
+    }
+    updateLocalStorage();
 }
 
-// Remove a destination card
-function removeDestination(event) {
-    const card = event.target.closest(".card"); // Get the card element
-    card.remove(); // Remove the card element
-    updateLocalStorage(); // Update local storage
+function openEditModal(card) {
+    const editForm = document.querySelector("#edit_form");
+    const cardId = card.dataset.id;
+    editForm.elements["edit_destination_name"].value = card.querySelector(".card-title").innerText;
+    editForm.elements["edit_location_name"].value = card.querySelector(".card-subtitle").innerText;
+    editForm.elements["edit_photo_url"].value = card.querySelector(".card-img-top").src;
+    editForm.elements["edit_location_description"].value = card.querySelector(".card-text") ? card.querySelector(".card-text").innerText : "";
+    editForm.dataset.cardId = cardId;
+    const editModal = new bootstrap.Modal(document.getElementById("editCardModal"));
+    editModal.show();
 }
 
-// Reset all cards and form
+document.querySelector("#edit_form").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const form = event.target;
+    const cardId = form.dataset.cardId;
+    const cardToUpdate = document.querySelector(`.card[data-id="${cardId}"]`);
+
+    const updatedName = form.elements["edit_destination_name"].value;
+    const updatedLocation = form.elements["edit_location_name"].value;
+    const updatedPhotoUrl = form.elements["edit_photo_url"].value;
+    const updatedDescription = form.elements["edit_location_description"].value;
+
+    updateDestinationCard(cardToUpdate, updatedName, updatedLocation, updatedPhotoUrl, updatedDescription);
+
+    const editModal = bootstrap.Modal.getInstance(document.getElementById("editCardModal"));
+    editModal.hide();
+});
+
+function removeDestination(card) {
+    card.remove();
+    updateLocalStorage();
+}
+
 function resetCards() {
-    const cardsContainer = document.querySelector("#cards_container");
-    cardsContainer.innerHTML = ""; // Clear the cards container
-    document.querySelector("#destination_form").reset(); // Reset the form fields
-    document.querySelector("#photo_results").innerHTML = ''; // Clear photo search results
-    localStorage.removeItem("destinations"); // Remove destinations from local storage
+    document.querySelector("#cards_container").innerHTML = '';
+    document.querySelector("#destination_form").reset();
+    document.querySelector("#photo_results").innerHTML = '';
+    localStorage.removeItem("destinations");
 }

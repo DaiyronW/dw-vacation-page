@@ -12,12 +12,11 @@ export function loadCardsFromLocalStorage() {
     const destinations = JSON.parse(localStorage.getItem("destinations")) || [];
     destinations.forEach(({ name, location, photoUrl, description }) => {
         const destinationCard = createDestinationCard(name, location, photoUrl, description);
-        const cardsContainer = document.querySelector("#cards_container");
-        cardsContainer.appendChild(destinationCard);
+        document.querySelector("#cards_container").appendChild(destinationCard);
     });
 }
 
-// Update local storage after changes
+// Update local storage with current cards
 export function updateLocalStorage() {
     const cardsContainer = document.querySelector("#cards_container");
     const cards = cardsContainer.querySelectorAll(".card");

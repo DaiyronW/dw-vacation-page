@@ -1,26 +1,39 @@
-import { createDestinationCard } from './main.js';
-import { saveCardToLocalStorage } from './storage.js';
-import { resetFormValues } from './photoSearch.js';
+// import { createDestinationCard, removeDestination, editDestination } from './main.js';
+// import { updateLocalStorage } from './storage.js';
 
-// Handle the form submission
-export function handleFormSubmit(event) {
-    event.preventDefault(); // Prevent the default form submission behavior
+// // Handle form submission
+// document.getElementById("destination_form").addEventListener("submit", (event) => {
+//     event.preventDefault();
+//     const form = event.target;
+//     const name = form.elements["destination_name"].value;
+//     const location = form.elements["location_name"].value;
+//     const photoUrl = form.elements["photo_url"].value;
+//     const description = form.elements["location_description"].value;
 
-    // Extract form values
-    const destinationName = event.target.elements["destination_name"].value;
-    const destinationLocation = event.target.elements["location_name"].value;
-    const destinationPhoto = event.target.elements["photo_url"].value;
-    const destinationDesc = event.target.elements["location_description"].value;
+//     createDestinationCard(name, location, photoUrl, description);
+//     form.reset();
+//     document.getElementById("photo_results").innerHTML = '';
+//     updateLocalStorage();
+// });
 
-    resetFormValues(event.target); // Reset the form fields
+// // Reset form values
+// document.getElementById("reset_btn").addEventListener("click", () => {
+//     document.getElementById("destination_form").reset();
+//     document.getElementById("photo_results").innerHTML = '';
+// });
 
-    // Create a new destination card
-    const destinationCard = createDestinationCard(destinationName, destinationLocation, destinationPhoto, destinationDesc);
+// // Handle edit button click
+// document.addEventListener("click", (event) => {
+//     if (event.target.classList.contains("edit-btn")) {
+//         const card = event.target.closest(".card");
+//         editDestination(card);
+//     }
+// });
 
-    // Append the card to the cards container
-    const cardsContainer = document.querySelector("#cards_container");
-    cardsContainer.appendChild(destinationCard);
-
-    // Save the card to local storage
-    saveCardToLocalStorage(destinationName, destinationLocation, destinationPhoto, destinationDesc);
-}
+// // Handle delete button click
+// document.addEventListener("click", (event) => {
+//     if (event.target.classList.contains("delete-btn")) {
+//         const card = event.target.closest(".card");
+//         removeDestination(card);
+//     }
+// });
